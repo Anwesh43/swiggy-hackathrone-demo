@@ -1,10 +1,15 @@
 from flask import *
 from .SpeechRecognizer import *
 from nltk import *
+from flask import jsonify
+import requests
 serverApp = Flask(__name__)
-questions = ["what is your location","which restaurant?","what you want to eat?"]
+questions = ["what is your location?","which restaurant?","what you want to eat?"]
+##questions = ["How "]
+endPointURI = "http://172.16.120.165/swiggyHackathrone/db.php"
+endPoints = ["?option=Locality&data=","?option=Restaurant&data=","?option=Food&data="]
 serverApp.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
-
+serverApp.debug = True
 recognizer = SpeechRecognizer()
 @serverApp.route('/test')
 def test():
@@ -19,24 +24,36 @@ def getTextFromSpeech(filename):
 @serverApp.route("/request-speech/<phoneno>")
 def requestSpeechApi(phoneno):
     session[phoneno] = 0
+    print(session[phoneno])
     print(len(questions))
     return "{0}".format(len(questions))
 
-@serverApp.route("/processText/<text>")
-def processText(text):
-    # stopwords 
+@serverApp.route("/processText/<int:i>/<text>")
+def processText(i,text):
+    # stopwords
+    print(session.keys())
     stopwords = set(('location', 'locality', 'place', 'home', 'area', 'place','abode','street',
                               'restaurant','hotel','eatery','brewrey','bar','joint','food','order'))
     sentence = word_tokenize(text)
     tags = pos_tag(sentence)
-    keywords = []
+    print(tags)
+    dictionary = {"NN":[],"CD":[]}
     for tupple in tags:
-        if "NN" in tupple[1] and tupple[0] not in stopwords:
-            keywords.append(tupple[0])
-        if "CD" in tupple[1]:
-            keywords.append(tupple[0])
-    print(keywords)
-    return "success"
+        print(tupple[1])
+        print(tupple[1][0:2])
+        if (tupple[1][0:2] in dictionary) and (tupple[0] not in stopwords):
+            dictionary[tupple[1][0:2]].append(tupple[0])
+    print(dictionary)
+    if len(dictionary['NN']) == 0:
+        return "error"
+    n = len(dictionary['NN'])-1
+    token = " ".join(dictionary['NN'])
+    new_end_point = '{0}{1}{2}'.format(endPointURI,endPoints[i],token)
+    print(new_end_point)
+    resp = requests.get(new_end_point)
+    data = resp.json()
+    print(data)
+    return jsonify({"status":"success","data":data})
 
 @serverApp.route("/fetchQuestion/<phoneno>/<index>")
 def fetchQuestion(phoneno,index):
