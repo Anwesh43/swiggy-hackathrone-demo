@@ -1,2 +1,6 @@
 *.mp3
 app/__pycache__
+socket_io-server/node_modules/*
+socket_io-server/yarn.lock
+app/*.pyc
+.DS_Store
