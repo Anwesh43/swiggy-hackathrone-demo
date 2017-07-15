@@ -9,7 +9,7 @@ class SpeechRecognizer:
         with AudioFile(AUDIO_FILE) as source:
             audio = self.r.record(source)
         try:
-            text = self.r.recognize_google(audio)
+            text = self.r.recognize_google(audio,langauge = "en-IN")
             print(text)
             return text
         except:
