@@ -29,6 +29,9 @@ def startLoop(n):
                 i = i+1
         except:
             print("error")
+    if i == n:
+        r = requests.post('http://localhost:9000/postorder',data={"name":"order1","price":100})
+        print(r.text)
     #print(type(json))
 if __name__ == "__main__":
     start()
