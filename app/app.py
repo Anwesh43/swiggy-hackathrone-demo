@@ -4,7 +4,7 @@ from nltk import *
 from flask import jsonify
 import requests
 serverApp = Flask(__name__)
-questions = ["what is your location?","which restaurant?","what you want to eat?"]
+questions = ["what is your location?","which restaurant you want to place your order from?","what do you want to eat?"]
 ##questions = ["How "]
 endPointURI = "http://172.16.120.165/swiggyHackathrone/db.php"
 endPoints = ["?option=Locality&data=","?option=Restaurant&data=","?option=Food&data="]
