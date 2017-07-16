@@ -1,0 +1,17 @@
+{
+		 "Restaurant_id": 12345,
+         "values": 
+		 [
+            {
+               "item_id": 1
+            },
+            {
+               "item_id": 2
+            },
+            {
+               "item_id": 3
+            }
+		 ]
+}
+		  
+        
