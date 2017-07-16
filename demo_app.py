@@ -76,6 +76,7 @@ def startLoop(n):
         post_order_text = (post_order.text)
         res = requests.post('http://localhost:9000/postorder',data=orderJSON)
         print(res.text)
+        speak('Your order is placed','success.mp3')
     #print(type(json))
 if __name__ == "__main__":
     start()
