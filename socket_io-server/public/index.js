@@ -4,4 +4,5 @@ socket.on('hello',(greet)=> {
 })
 socket.on("new_order",(order)=>{
     document.write(order.name+" "+order.price)
+    console.log(order)
 })

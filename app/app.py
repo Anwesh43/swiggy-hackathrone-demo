@@ -53,7 +53,7 @@ def processText(i,text):
     resp = requests.get(new_end_point)
     data = resp.json()
     print(data)
-    return jsonify({"status":"success","data":data})
+    return jsonify({"status":"success","data":data,"orig_text":token})
 
 @serverApp.route("/fetchQuestion/<phoneno>/<index>")
 def fetchQuestion(phoneno,index):
