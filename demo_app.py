@@ -17,7 +17,7 @@ def start():
     r = requests.get('http://localhost:5000/request-speech/{0}'.format(phno))
     print(r.text)
     n =  int(r.text)
-    startLoop(3)
+    startLoop(n)
 def speak(text,file_name):
     tts = gTTS(text=text, lang='hi')
     tts.save(file_name)
@@ -45,8 +45,9 @@ def startLoop(n):
             if resp["status"] == "success":
                 key_text = text
                 for key in prevItemDictionary.keys():
-                    if key.lower() in key_text:
+                    if key.replace(' ','').lower() in key_text.replace(' ','').lower():
                         key_text = key
+                        print('key text is {0}'.format(key_text))
 
                 if key_text in prevItemDictionary:
                     orderDictionary[valItems[i-1]] = prevItemDictionary[key_text]
@@ -73,9 +74,8 @@ def startLoop(n):
         print(orderJSON)
         post_order = requests.post('http://172.16.120.165/swiggyHackathrone/db.php?option=ConfirmOrder',data=orderDictionary)
         post_order_text = (post_order.text)
-        if post_order_text == "true":
-            res = requests.post('http://localhost:9000/postorder',data=orderJSON)
-            print(res.text)
+        res = requests.post('http://localhost:9000/postorder',data=orderJSON)
+        print(res.text)
     #print(type(json))
 if __name__ == "__main__":
     start()
