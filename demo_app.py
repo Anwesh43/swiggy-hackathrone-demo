@@ -6,9 +6,9 @@ from speech_recognition import *
 recognizer = Recognizer()
 phno = 'xxab'
 items = ['Restaurant','FoodItem','ItemId']
-greets = ['Here are the top restaurants for you','Here is the menu']
+greets = ['Here are the top restaurants for you','Here is the list of trending food items']
 orderItems = ['Restaurant_id','ItemId']
-valItems = ['Restaurant_id','values']
+valItems = ['Restaurant_id','item_id']
 prevItemDictionary = {}
 orderDictionary = {}
 orderJSONItems = ["place","restaurant","food_item","cost"]
@@ -34,6 +34,11 @@ def startLoop(n):
         try:
             text = recognizer.recognize_google(audio)
             print(text)
+            prev_menus = prevItemDictionary.keys()
+            if len(prev_menus) > 0:
+                matches = difflib.get_close_matches(text,prev_menus)
+                if len(matches) == 1:
+                    text = matches[0]
             new_r = requests.get('http://localhost:5000/processText/{1}/{0}'.format(text,i))
             resp = new_r.json()
             print(resp)
@@ -42,23 +47,23 @@ def startLoop(n):
                 for key in prevItemDictionary.keys():
                     if key.lower() in key_text:
                         key_text = key
+
                 if key_text in prevItemDictionary:
-                    if i == n-1:
-                        orderDictionary[valItems[i-1]] = [{"item_id":prevItemDictionary[key_text]}]
-                    else:
-                        orderDictionary[valItems[i-1]] = prevItemDictionary[key_text]
+                    orderDictionary[valItems[i-1]] = prevItemDictionary[key_text]
+
                 print("success")
+                orderJSON[orderJSONItems[i]] = resp["orig_text"]
                 if not(i == n-1):
                     speak('{0} in {1}'.format(greets[i],resp["orig_text"]),"greet_{0}.mp3".format(i))
                     for data in resp["data"]:
                         print(data[items[i]])
                         speak(data[items[i]],"{0}.mp3".format(data[items[i]].replace(' ','_')))
                         prevItemDictionary[data[items[i]]] = data[orderItems[i]]
-                    orderJSON[orderJSONItems[i]] = resp["orig_text"]
+
                 else:
                     print(orderDictionary)
                     cost = float(resp["data"])
-                    orderJSON[orderJSONItems[i]] = cost
+                    orderJSON[orderJSONItems[i+1]] = cost
                 i = i+1
 
         except Exception as e:
@@ -66,8 +71,11 @@ def startLoop(n):
             print("error")
     if i == n:
         print(orderJSON)
-        r = requests.post('http://localhost:9000/postorder',data=orderJSON)
-        print(r.text)
+        post_order = requests.post('http://172.16.120.165/swiggyHackathrone/db.php?option=ConfirmOrder',data=orderDictionary)
+        post_order_text = (post_order.text)
+        if post_order_text == "true":
+            res = requests.post('http://localhost:9000/postorder',data=orderJSON)
+            print(res.text)
     #print(type(json))
 if __name__ == "__main__":
     start()
